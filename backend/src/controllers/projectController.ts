@@ -1,7 +1,9 @@
+
 import { Request, Response } from 'express';
 import { pool } from '../config/database.js';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { deleteImage } from '../middleware/upload.js';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8888';
 
 export const getAllProjects = async (req: Request, res: Response) => {
   try {
@@ -51,7 +53,8 @@ export const createProject = async (req: Request, res: Response) => {
   try {
     const { title, description, long_description, category, technologies, github_url, live_url, featured, authors } = req.body;
     
-    const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+    let image_url = req.file ? `/uploads/${req.file.filename}` : null;
+    let full_image_url = image_url ? `${BACKEND_URL}${image_url}` : null;
     const featuredValue = featured === 'true' || featured === true ? 1 : 0;
 
     const [result] = await pool.query<ResultSetHeader>(
@@ -62,7 +65,8 @@ export const createProject = async (req: Request, res: Response) => {
 
     res.status(201).json({
       id: result.insertId,
-      message: 'Project created successfully'
+      message: 'Project created successfully',
+      image_url: full_image_url
     });
   } catch (error) {
     console.error('Create project error:', error);
@@ -87,6 +91,7 @@ export const updateProject = async (req: Request, res: Response) => {
 
     const oldImageUrl = existingProjects[0].image_url;
     let image_url = oldImageUrl;
+    let full_image_url = oldImageUrl ? `${BACKEND_URL}${oldImageUrl}` : null;
 
     // If new image uploaded, delete old one and update
     if (req.file) {
@@ -94,6 +99,7 @@ export const updateProject = async (req: Request, res: Response) => {
         deleteImage(oldImageUrl);
       }
       image_url = `/uploads/${req.file.filename}`;
+      full_image_url = `${BACKEND_URL}${image_url}`;
     }
 
     const featuredValue = featured === 'true' || featured === true ? 1 : 0;
@@ -106,7 +112,7 @@ export const updateProject = async (req: Request, res: Response) => {
       [title, description, long_description, category, technologies, github_url, live_url, featuredValue, image_url, authors || null, id]
     );
 
-    res.json({ message: 'Project updated successfully' });
+    res.json({ message: 'Project updated successfully', image_url: full_image_url });
   } catch (error) {
     console.error('Update project error:', error);
     res.status(500).json({ error: 'Server error' });
