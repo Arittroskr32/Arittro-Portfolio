@@ -45,12 +45,14 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Increase body parser limits to accommodate larger multipart/form-data and JSON payloads
+app.use(express.json({ limit: process.env.BODY_PARSER_LIMIT || '20mb' }));
+app.use(express.urlencoded({ extended: true, limit: process.env.BODY_PARSER_LIMIT || '20mb' }));
 app.use(morgan('dev'));
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static('/app/uploads'));
+// Serve static files from uploads directory (configurable)
+const staticUploadDir = process.env.UPLOAD_DIR || '/app/uploads';
+app.use('/uploads', express.static(staticUploadDir));
 
 // Rate limiting
 const limiter = rateLimit({

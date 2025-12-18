@@ -6,10 +6,14 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Ensure uploads directory exists - use absolute path from project root
-const uploadDir = '/app/uploads';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Determine uploads directory: prefer env var, then container path, then local project uploads
+const uploadDir = process.env.UPLOAD_DIR || '/app/uploads' || path.join(__dirname, '..', '..', 'uploads');
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn('Could not create upload directory:', uploadDir, err);
 }
 
 // Configure storage
@@ -40,7 +44,7 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCa
 export const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+    fileSize: parseInt(process.env.MAX_UPLOAD_SIZE || String(20 * 1024 * 1024), 10) // default 20MB
   },
   fileFilter: fileFilter
 });
