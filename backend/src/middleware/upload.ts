@@ -1,7 +1,8 @@
-import multer from 'multer';
+import * as multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { Request } from 'express';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,11 +19,11 @@ try {
 
 // Configure storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (req: Request, _file: Express.Multer.File, cb: (error: Error | null, destination?: string) => void) => {
     cb(null, uploadDir);
   },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+  filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename?: string) => void) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, 'ctf-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
