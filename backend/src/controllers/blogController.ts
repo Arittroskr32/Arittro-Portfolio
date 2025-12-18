@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8888';
 
 // Get all blog posts
 export const getAllBlogPosts = async (req: Request, res: Response) => {
@@ -14,7 +15,12 @@ export const getAllBlogPosts = async (req: Request, res: Response) => {
     const [blogs] = await pool.query<RowDataPacket[]>(
       'SELECT * FROM blog_posts ORDER BY created_at DESC'
     );
-    res.json(blogs);
+    // Prefix image paths with BACKEND_URL for frontend consumption
+    const transformed = blogs.map(b => ({
+      ...b,
+      image_url: b.image_url ? `${BACKEND_URL}${b.image_url}` : null
+    }));
+    res.json(transformed);
   } catch (error) {
     console.error('Error fetching blogs:', error);
     res.status(500).json({ error: 'Failed to fetch blogs' });
@@ -34,7 +40,9 @@ export const getBlogPostById = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Blog not found' });
     }
 
-    res.json(blogs[0]);
+    const blog = blogs[0];
+    blog.image_url = blog.image_url ? `${BACKEND_URL}${blog.image_url}` : null;
+    res.json(blog);
   } catch (error) {
     console.error('Error fetching blog:', error);
     res.status(500).json({ error: 'Failed to fetch blog' });
@@ -61,6 +69,7 @@ export const createBlogPost = async (req: Request, res: Response) => {
     res.status(201).json({
       message: 'Blog created successfully',
       id: result.insertId,
+      image_url: imageUrl ? `${BACKEND_URL}${imageUrl}` : null
     });
   } catch (error) {
     console.error('Error creating blog:', error);
@@ -119,7 +128,7 @@ export const updateBlogPost = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Blog not found' });
     }
 
-    res.json({ message: 'Blog updated successfully' });
+    res.json({ message: 'Blog updated successfully', image_url: imageUrl ? `${BACKEND_URL}${imageUrl}` : null });
   } catch (error) {
     console.error('Error updating blog:', error);
     res.status(500).json({ error: 'Failed to update blog' });
