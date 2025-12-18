@@ -7,13 +7,27 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8888';
+const BACKEND_URL = process.env.BACKEND_URL || (process.env.VITE_API_URL ? String(process.env.VITE_API_URL).replace(/\/api\/?$/i, '') : 'http://localhost:8888');
 
 const makeFullUrl = (p: any) => {
   if (!p) return null;
   const str = String(p);
   if (str.startsWith('http://') || str.startsWith('https://')) return str;
   return `${BACKEND_URL}${str}`;
+};
+
+const normalizeForStorage = (p: any) => {
+  if (!p) return null;
+  try {
+    const s = String(p);
+    if (s.startsWith('http://') || s.startsWith('https://')) {
+      const u = new URL(s);
+      return u.pathname + (u.search || '');
+    }
+    return s;
+  } catch (err) {
+    return String(p);
+  }
 };
 
 // Get all blog posts
@@ -66,6 +80,8 @@ export const createBlogPost = async (req: Request, res: Response) => {
     if (image) {
       imageUrl = `/uploads/${image.filename}`;
     }
+    // Ensure we store a relative path in DB
+    imageUrl = normalizeForStorage(imageUrl);
 
     const [result] = await pool.query<ResultSetHeader>(
       `INSERT INTO blog_posts (title, category, tags, content, image_url) 
@@ -101,7 +117,7 @@ export const updateBlogPost = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Blog not found' });
     }
 
-    let imageUrl = existingBlogs[0].image_url;
+    let imageUrl = normalizeForStorage(existingBlogs[0].image_url);
 
     // If user wants to delete the image
     if (deleteImage === 'true' && !image) {
@@ -122,6 +138,7 @@ export const updateBlogPost = async (req: Request, res: Response) => {
         }
       }
       imageUrl = `/uploads/${image.filename}`;
+      imageUrl = normalizeForStorage(imageUrl);
     }
 
     const [result] = await pool.query<ResultSetHeader>(

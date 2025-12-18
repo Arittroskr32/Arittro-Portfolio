@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { pool } from '../config/database.js';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { deleteImage } from '../middleware/upload.js';
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8888';
+const BACKEND_URL = process.env.BACKEND_URL || (process.env.VITE_API_URL ? String(process.env.VITE_API_URL).replace(/\/api\/?$/i, '') : 'http://localhost:8888');
 
 export const getAllProjects = async (req: Request, res: Response) => {
   try {
@@ -54,6 +54,13 @@ export const createProject = async (req: Request, res: Response) => {
     const { title, description, long_description, category, technologies, github_url, live_url, featured, authors } = req.body;
     
     let image_url = req.file ? `/uploads/${req.file.filename}` : null;
+    // normalize stored path to avoid full URL being saved
+    try {
+      if (image_url && (image_url.startsWith('http://') || image_url.startsWith('https://'))) {
+        const u = new URL(image_url);
+        image_url = u.pathname + (u.search || '');
+      }
+    } catch (e) {}
     let full_image_url = image_url ? `${BACKEND_URL}${image_url}` : null;
     const featuredValue = featured === 'true' || featured === true ? 1 : 0;
 
@@ -90,8 +97,8 @@ export const updateProject = async (req: Request, res: Response) => {
     }
 
     const oldImageUrl = existingProjects[0].image_url;
-    let image_url = oldImageUrl;
-    let full_image_url = oldImageUrl ? `${BACKEND_URL}${oldImageUrl}` : null;
+    let image_url = oldImageUrl && (oldImageUrl.startsWith('http://') || oldImageUrl.startsWith('https://')) ? (new URL(oldImageUrl)).pathname : oldImageUrl;
+    let full_image_url = image_url ? `${BACKEND_URL}${image_url}` : null;
 
     // If new image uploaded, delete old one and update
     if (req.file) {
