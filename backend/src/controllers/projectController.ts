@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { pool } from '../config/database.js';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { deleteImage } from '../middleware/upload.js';
-const BACKEND_URL = process.env.BACKEND_URL || (process.env.VITE_API_URL ? String(process.env.VITE_API_URL).replace(/\/api\/?$/i, '') : 'http://localhost:8888');
+const FRONTEND_URL = process.env.FRONTEND_URL || process.env.BACKEND_URL || (process.env.VITE_API_URL ? String(process.env.VITE_API_URL).replace(/\/api\/?$/i, '') : 'http://localhost:8888');
 
 export const getAllProjects = async (req: Request, res: Response) => {
   try {
