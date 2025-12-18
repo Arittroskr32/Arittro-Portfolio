@@ -283,7 +283,11 @@ const ManageCTF: React.FC = () => {
                     </div>
                   </div>
                   {entry.description && (
-                    <p className="text-gray-400 mb-3">{entry.description}</p>
+                    <p className="text-gray-400 mb-3">
+                      {entry.description.length > 120
+                        ? entry.description.slice(0, 120) + '...'
+                        : entry.description}
+                    </p>
                   )}
                   {entry.writeup_url && (
                     <a
