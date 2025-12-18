@@ -24,6 +24,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// If running behind a reverse proxy (nginx, Cloudflare), enable trust proxy
+// Use the environment variable TRUST_PROXY to configure (default '1')
+app.set('trust proxy', process.env.TRUST_PROXY ?? '1');
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
