@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const FRONTEND_URL = process.env.FRONTEND_URL || process.env.BACKEND_URL || (process.env.VITE_API_URL ? String(process.env.VITE_API_URL).replace(/\/api\/?$/i, '') : 'http://localhost:8888');
+const FRONTEND_URL = process.env.FRONTEND_URL || (process.env.VITE_API_URL ? String(process.env.VITE_API_URL).replace(/\/api\/?$/i, '') : 'http://localhost:8888');
 
 const makeFullUrl = (p: any) => {
   if (!p) return null;

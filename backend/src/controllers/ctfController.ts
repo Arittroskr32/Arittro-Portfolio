@@ -50,7 +50,14 @@ export const createCTFEntry = async (req: Request, res: Response) => {
       description 
     } = req.body;
 
-    const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+    let image_url = req.file ? `/uploads/${req.file.filename}` : null;
+    // normalize stored path to avoid saving full URLs
+    try {
+      if (image_url && (image_url.startsWith('http://') || image_url.startsWith('https://'))) {
+        const u = new URL(image_url);
+        image_url = u.pathname + (u.search || '');
+      }
+    } catch (e) {}
 
     const [result] = await pool.query<ResultSetHeader>(
       'INSERT INTO ctf_entries (' +
