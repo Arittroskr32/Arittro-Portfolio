@@ -6,6 +6,13 @@ import { blogService, BlogPost } from '../services/blogService';
 import { Search, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8888';
+const makeFullUrl = (p?: string | null) => {
+  if (!p) return undefined;
+  if (p.startsWith('http://') || p.startsWith('https://')) return p;
+  return `${BACKEND_URL}${p.startsWith('/') ? p : `/${p}`}`;
+};
+
 export function Blog() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,10 +112,10 @@ export function Blog() {
               <Link to={`/blog/${post.id}`}>
                 <Card hover className="group h-full">
                   <div className="flex flex-col md:flex-row gap-6">
-                    {post.image_url && (
+                        {post.image_url && (
                       <div className="w-full md:w-48 h-48 flex-shrink-0">
                         <img
-                          src={`http://localhost:8888${post.image_url}`}
+                              src={makeFullUrl(post.image_url)}
                           alt={post.title}
                           className="w-full h-full object-cover rounded-lg"
                         />

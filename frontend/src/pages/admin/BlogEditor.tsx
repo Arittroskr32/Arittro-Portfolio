@@ -39,7 +39,14 @@ export const BlogEditor: React.FC = () => {
         tags: blog.tags || '',
         content: contentForEditing
       });
-      setImagePreview(blog.image_url ? `http://localhost:8888${blog.image_url}` : null);
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8888';
+      const makeFullUrl = (p?: string | null) => {
+        if (!p) return null;
+        if (p.startsWith('http://') || p.startsWith('https://')) return p;
+        return `${BACKEND_URL}${p.startsWith('/') ? p : `/${p}`}`;
+      };
+
+      setImagePreview(makeFullUrl(blog.image_url));
     } catch (error) {
       console.error('Failed to load blog:', error);
       alert('Failed to load blog post');

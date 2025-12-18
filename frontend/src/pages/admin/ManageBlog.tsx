@@ -89,7 +89,7 @@ const ManageBlog: React.FC = () => {
               <div className="flex gap-4 items-start">
                 {blog.image_url && (
                   <img
-                    src={`http://localhost:8888${blog.image_url}`}
+                    src={(import.meta.env.VITE_BACKEND_URL || 'http://localhost:8888') + (blog.image_url.startsWith('/') ? blog.image_url : `/${blog.image_url}`)}
                     alt={blog.title}
                     className="w-32 h-32 object-cover rounded-lg flex-shrink-0"
                   />

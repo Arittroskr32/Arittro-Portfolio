@@ -2,6 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { blogService, BlogPost as BlogPostType } from '../services/blogService';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8888';
+const makeFullUrl = (p?: string | null) => {
+  if (!p) return undefined;
+  if (p.startsWith('http://') || p.startsWith('https://')) return p;
+  return `${BACKEND_URL}${p.startsWith('/') ? p : `/${p}`}`;
+};
 import { ArrowLeft, Calendar, Tag } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 
@@ -86,7 +93,7 @@ export function BlogPost() {
         {post.image_url && (
           <div className="mb-8 rounded-lg overflow-hidden">
             <img
-              src={`http://localhost:8888${post.image_url}`}
+              src={makeFullUrl(post.image_url)}
               alt={post.title}
               className="w-full h-96 object-cover"
             />
