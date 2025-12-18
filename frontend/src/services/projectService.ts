@@ -22,7 +22,15 @@ export const projectService = {
         body: data,
       });
 
-      const result = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      let result: any;
+      if (contentType.includes('application/json')) {
+        result = await response.json();
+      } else {
+        const text = await response.text();
+        // If response is HTML (error page) or plain text, throw as error
+        throw new Error(text || 'Non-JSON response from server');
+      }
 
       if (!response.ok) {
         throw { response: { data: result } };
@@ -44,7 +52,14 @@ export const projectService = {
         body: data,
       });
 
-      const result = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      let result: any;
+      if (contentType.includes('application/json')) {
+        result = await response.json();
+      } else {
+        const text = await response.text();
+        throw new Error(text || 'Non-JSON response from server');
+      }
 
       if (!response.ok) {
         throw { response: { data: result } };
