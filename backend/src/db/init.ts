@@ -38,6 +38,23 @@ const createTables = async () => {
       )
     `);
 
+    // Ensure authors column exists in projects table for older DB instances
+    try {
+      await connection.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS authors VARCHAR(500);`);
+      console.log('✅ Ensured authors column exists in projects table');
+    } catch (err) {
+      // If ALTER TABLE with IF NOT EXISTS is not supported, fallback to information_schema check
+      try {
+        const [cols]: any = await connection.query(`SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'projects' AND COLUMN_NAME = 'authors'`, [process.env.DB_NAME]);
+        if (!cols || cols.length === 0) {
+          await connection.query(`ALTER TABLE projects ADD COLUMN authors VARCHAR(500);`);
+          console.log('✅ Added authors column to projects table');
+        }
+      } catch (innerErr) {
+        console.warn('⚠️ Could not ensure authors column exists automatically:', innerErr);
+      }
+    }
+
     // Create Blog Posts table
     await connection.query(`
       CREATE TABLE IF NOT EXISTS blog_posts (
