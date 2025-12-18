@@ -111,10 +111,10 @@ export function Blog() {
               transition={{ delay: index * 0.1 }}
             >
               <Link to={`/blog/${post.id}`}>
-                <Card hover className="group h-full">
+                <Card hover className="group h-full min-h-0">
                   <div className="flex flex-col md:flex-row gap-6">
                         {post.image_url && (
-                      <div className="w-full md:w-48 h-48 flex-shrink-0">
+                      <div className="w-full md:w-40 h-40 flex-shrink-0">
                         <img
                               src={makeFullUrl(post.image_url)}
                           alt={post.title}

@@ -47,7 +47,9 @@ export const BlogEditor: React.FC = () => {
         return `${BACKEND_URL}${p.startsWith('/') ? p : `/${p}`}`;
       };
 
-      setImagePreview(makeFullUrl(blog.image_url));
+      setImagePreview(blog.image_url && (blog.image_url.startsWith('http://') || blog.image_url.startsWith('https://'))
+        ? blog.image_url
+        : makeFullUrl(blog.image_url));
     } catch (error) {
       console.error('Failed to load blog:', error);
       alert('Failed to load blog post');
