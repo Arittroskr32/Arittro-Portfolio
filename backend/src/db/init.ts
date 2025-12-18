@@ -232,14 +232,47 @@ const seedMockData = async () => {
     }
 
     // Seed Projects
-    await connection.query(`
-      INSERT INTO projects (title, description, category, tech_stack, github_url, featured) VALUES
-      ('Recon Automation Toolkit', 'Multi-step subdomain enumeration + HTTP probing + screenshots. A Python-based CLI tool designed to streamline the reconnaissance phase of bug bounty hunting.', 'Security Tools', '["Python", "Bash", "Docker"]', 'https://github.com/arittro/recon-tool', TRUE),
-      ('JWT Analyzer', 'Decodes, modifies, and signs JWTs to test for common vulnerabilities like "none" algorithm and weak secrets.', 'Security Tools', '["Go", "JavaScript"]', 'https://github.com/arittro/jwt-analyzer', TRUE),
-      ('CTF Exploit Boilerplate', 'Generates Python templates for remote exploits using pwntools. Useful for pwn challenges to save setup time.', 'CTF Utilities', '["Python", "Pwntools"]', 'https://github.com/arittro/ctf-boilerplate', FALSE),
-      ('Bug Bounty Dashboard', 'Web UI to track recon results with cron jobs running automation scripts in the background.', 'Full-Stack Dev', '["Next.js", "PostgreSQL", "Node.js"]', 'https://github.com/arittro/bb-dashboard', FALSE),
-      ('XSS Payload Generator', 'Tool for creating obfuscated XSS payloads with various encoding techniques to bypass WAFs.', 'Security Tools', '["Python", "JavaScript"]', 'https://github.com/arittro/xss-gen', FALSE)
-    `);
+    // Determine which column name to use for project tech list (some DBs use tech_stack JSON, others use technologies TEXT)
+    let techColumn = 'tech_stack';
+    try {
+      const [cols]: any = await connection.query(`SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'projects' AND COLUMN_NAME IN ('tech_stack','technologies','technologies')`, [process.env.DB_NAME]);
+      if (!cols || cols.length === 0) {
+        // fallback: if neither column exists, default to tech_stack and attempt to add it
+        try {
+          await connection.query(`ALTER TABLE projects ADD COLUMN tech_stack JSON`);
+          console.log('✅ Added tech_stack column to projects table');
+        } catch (alterErr) {
+          console.warn('⚠️ Could not add tech_stack column:', alterErr);
+        }
+      } else {
+        // use the first matching column
+        techColumn = cols[0].COLUMN_NAME;
+      }
+    } catch (err) {
+      console.warn('Could not determine tech column, defaulting to tech_stack', err);
+    }
+
+    // Build insert using the resolved tech column
+    const insertProjectsSQL = `INSERT INTO projects (title, description, category, ${techColumn}, github_url, featured) VALUES
+      ('Recon Automation Toolkit', 'Multi-step subdomain enumeration + HTTP probing + screenshots. A Python-based CLI tool designed to streamline the reconnaissance phase of bug bounty hunting.', 'Security Tools', ?, 'https://github.com/arittro/recon-tool', TRUE),
+      ('JWT Analyzer', 'Decodes, modifies, and signs JWTs to test for common vulnerabilities like "none" algorithm and weak secrets.', 'Security Tools', ?, 'https://github.com/arittro/jwt-analyzer', TRUE),
+      ('CTF Exploit Boilerplate', 'Generates Python templates for remote exploits using pwntools. Useful for pwn challenges to save setup time.', 'CTF Utilities', ?, 'https://github.com/arittro/ctf-boilerplate', FALSE),
+      ('Bug Bounty Dashboard', 'Web UI to track recon results with cron jobs running automation scripts in the background.', 'Full-Stack Dev', ?, 'https://github.com/arittro/bb-dashboard', FALSE),
+      ('XSS Payload Generator', 'Tool for creating obfuscated XSS payloads with various encoding techniques to bypass WAFs.', 'Security Tools', ?, 'https://github.com/arittro/xss-gen', FALSE)
+    `;
+
+    const techValues = [
+      JSON.stringify(['Python', 'Bash', 'Docker']),
+      JSON.stringify(['Go', 'JavaScript']),
+      JSON.stringify(['Python', 'Pwntools']),
+      JSON.stringify(['Next.js', 'PostgreSQL', 'Node.js']),
+      JSON.stringify(['Python', 'JavaScript'])
+    ];
+
+    // MySQL placeholders: repeat the ? for each row
+    const placeholders = techValues.map(() => '?').join(',\n      ');
+    // We already constructed insertProjectsSQL with ? placeholders in order; supply techValues accordingly
+    await connection.query(insertProjectsSQL, techValues);
 
     // Seed Blog Posts
     await connection.query(`
