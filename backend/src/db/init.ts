@@ -85,17 +85,21 @@ const createTables = async () => {
       )
     `);
 
-    // Create CTF Entries table
+    // Create CTF Entries table (use safe column names to avoid reserved-word issues)
     await connection.query(`
       CREATE TABLE IF NOT EXISTS ctf_entries (
         id INT PRIMARY KEY AUTO_INCREMENT,
-        name VARCHAR(255) NOT NULL,
-        event VARCHAR(255) NOT NULL,
+        competition_name VARCHAR(255) NOT NULL,
+        event_date DATE NOT NULL,
         category VARCHAR(100) NOT NULL,
-        rank VARCHAR(100),
-        date VARCHAR(50) NOT NULL,
+        placement INT,
+        team_name VARCHAR(255),
+        challenges_solved INT NOT NULL,
+        total_challenges INT NOT NULL,
+        points_earned INT NOT NULL,
         writeup_url VARCHAR(500),
-        type ENUM('Played', 'Authored', 'Organized') NOT NULL,
+        description TEXT,
+        image_url VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
