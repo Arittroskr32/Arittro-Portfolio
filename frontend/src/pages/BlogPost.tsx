@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { blogService, BlogPost as BlogPostType } from '../services/blogService';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8888';
+const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8888/api';
+const BACKEND_URL = String(VITE_API_URL).replace(/\/api\/?$/i, '');
 const makeFullUrl = (p?: string | null) => {
   if (!p) return undefined;
   if (p.startsWith('http://') || p.startsWith('https://')) return p;

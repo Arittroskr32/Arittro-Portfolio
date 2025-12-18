@@ -39,7 +39,8 @@ export const BlogEditor: React.FC = () => {
         tags: blog.tags || '',
         content: contentForEditing
       });
-      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8888';
+      const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8888/api';
+      const BACKEND_URL = String(VITE_API_URL).replace(/\/api\/?$/i, '');
       const makeFullUrl = (p?: string | null) => {
         if (!p) return null;
         if (p.startsWith('http://') || p.startsWith('https://')) return p;

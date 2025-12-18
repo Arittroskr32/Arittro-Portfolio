@@ -6,7 +6,8 @@ import { blogService, BlogPost } from '../services/blogService';
 import { Search, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8888';
+const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8888/api';
+const BACKEND_URL = String(VITE_API_URL).replace(/\/api\/?$/i, '');
 const makeFullUrl = (p?: string | null) => {
   if (!p) return undefined;
   if (p.startsWith('http://') || p.startsWith('https://')) return p;
