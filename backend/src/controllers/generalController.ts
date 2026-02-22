@@ -97,6 +97,10 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       'SELECT COUNT(*) as count FROM skills'
     );
 
+    const [certificatesCount] = await pool.query<RowDataPacket[]>(
+      'SELECT COUNT(*) as count FROM certificates'
+    );
+
     const [messagesCount] = await pool.query<RowDataPacket[]>(
       'SELECT COUNT(*) as count FROM contact_messages WHERE read_status = FALSE'
     );
@@ -107,6 +111,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       ctfEntries: ctfEntriesCount[0].count,
       bugBountyEntries: bugBountyCount[0].count,
       skills: skillsCount[0].count,
+      certificates: certificatesCount[0].count,
       unreadMessages: messagesCount[0].count
     });
   } catch (error) {

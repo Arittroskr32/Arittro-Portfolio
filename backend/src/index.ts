@@ -18,6 +18,7 @@ import ctfRoutes from './routes/ctfRoutes.js';
 import bugBountyRoutes from './routes/bugBountyRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import generalRoutes from './routes/generalRoutes.js';
+import certificateRoutes from './routes/certificateRoutes.js';
 
 dotenv.config();
 
@@ -36,19 +37,33 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-const allowedOrigins: string[] = [
-  process.env.FRONTEND_URL || 'http://localhost',
-  'http://localhost',
-  'http://localhost:80',
-  'http://localhost:5173'
-];
+const allowedOrigins = Array.from(
+  new Set(
+    [
+      process.env.FRONTEND_URL || 'http://localhost:4000',
+      'http://localhost:4000',
+      'http://127.0.0.1:4000',
+      'http://localhost',
+      'http://localhost:80',
+      'http://localhost:5173'
+    ].filter(Boolean)
+  )
+);
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    // Allow non-browser requests (curl, server-to-server) with no Origin header.
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Ensure preflight requests are handled consistently
+app.options('*', cors());
 // Increase body parser limits to accommodate larger multipart/form-data and JSON payloads
 app.use(express.json({ limit: process.env.BODY_PARSER_LIMIT || '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: process.env.BODY_PARSER_LIMIT || '20mb' }));
@@ -89,6 +104,7 @@ app.use('/api/skills', skillRoutes);
 app.use('/api/ctf', ctfRoutes);
 app.use('/api/bug-bounty', bugBountyRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/certificates', certificateRoutes);
 app.use('/api', generalRoutes);
 
 // Error handler (must be last)

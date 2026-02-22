@@ -120,6 +120,23 @@ CREATE TABLE IF NOT EXISTS journey_highlights (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Create certificates table
+CREATE TABLE IF NOT EXISTS certificates (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  `rank` INT DEFAULT 0,
+  title VARCHAR(255) NOT NULL,
+  description LONGTEXT NOT NULL,
+  image_url VARCHAR(255),
+  issuing_organization VARCHAR(255) NOT NULL,
+  issue_date DATE NOT NULL,
+  skill_tags TEXT,
+  verification_link VARCHAR(500),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_certificates_rank (`rank`),
+  INDEX idx_certificates_issue_date (issue_date)
+);
+
 -- Insert default admin user (password: admin123)
 INSERT INTO admins (email, password, name) VALUES 
 ('admin@arittro.com', '$2a$10$YourHashedPasswordHere', 'Admin')
