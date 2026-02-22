@@ -58,6 +58,21 @@ export interface BugBountyEntry {
   report_url?: string;
   created_at?: string;
 }
+
+export interface Certificate {
+  id: number;
+  rank: number;
+  title: string;
+  description: string;
+  image_url?: string;
+  issuing_organization: string;
+  issue_date: string;
+  skill_tags?: string;
+  verification_link?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Stat {
   label: string;
   value: string | number;

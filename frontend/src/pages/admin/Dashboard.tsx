@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '../../components/ui/Card';
-import { Folder, FileText, Shield, Bug, Mail, Code } from 'lucide-react';
+import { Folder, FileText, Shield, Bug, Mail, Code, Award } from 'lucide-react';
 import { generalService, DashboardStats } from '../../services/generalService';
 
 export function Dashboard() {
@@ -71,6 +71,12 @@ export function Dashboard() {
       color: 'text-electric-500'
     },
     {
+      label: 'Certificates',
+      value: stats?.certificates || 0,
+      icon: Award,
+      color: 'text-yellow-500'
+    },
+    {
       label: 'Unread Messages',
       value: stats?.unreadMessages || 0,
       icon: Mail,
@@ -131,6 +137,17 @@ export function Dashboard() {
               </span>
             </button>
             <button 
+              onClick={() => window.location.href = '/admin/certificate'}
+              className="p-4 rounded-lg bg-navy-800 hover:bg-navy-700 transition-colors text-left border border-navy-700"
+            >
+              <span className="block font-bold text-warm-50 mb-1">
+                + Add Certificate
+              </span>
+              <span className="text-xs text-slate-400">
+                Add a new certification
+              </span>
+            </button>
+            <button 
               onClick={() => window.location.href = '/admin/ctf'}
               className="p-4 rounded-lg bg-navy-800 hover:bg-navy-700 transition-colors text-left border border-navy-700"
             >
@@ -139,17 +156,6 @@ export function Dashboard() {
               </span>
               <span className="text-xs text-slate-400">
                 Log a competition result
-              </span>
-            </button>
-            <button 
-              onClick={() => window.location.href = '/admin/profile'}
-              className="p-4 rounded-lg bg-navy-800 hover:bg-navy-700 transition-colors text-left border border-navy-700"
-            >
-              <span className="block font-bold text-warm-50 mb-1">
-                Update Profile
-              </span>
-              <span className="text-xs text-slate-400">
-                Edit bio and skills
               </span>
             </button>
           </div>

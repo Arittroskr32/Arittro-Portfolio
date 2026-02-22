@@ -7,6 +7,9 @@
 docker-compose up -d --build
 ```
 
+
+
+
 ### Start Frontend Only
 ```bash
 docker-compose up -d --build frontend

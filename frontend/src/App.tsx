@@ -15,6 +15,8 @@ import { BugBountyDetail } from './pages/BugBountyDetail';
 import { Blog } from './pages/Blog';
 import { BlogPost } from './pages/BlogPost';
 import { Contact } from './pages/Contact';
+import { Certificates } from './pages/Certificates';
+import { CertificateDetail } from './pages/CertificateDetail';
 // Admin Pages
 import { AdminLogin } from './pages/admin/Login';
 import { Dashboard } from './pages/admin/Dashboard';
@@ -22,6 +24,7 @@ import ManageProjects from './pages/admin/ManageProjects';
 import ManageBlog from './pages/admin/ManageBlog';
 import { BlogEditor } from './pages/admin/BlogEditor';
 import ManageSkills from './pages/admin/ManageSkills';
+import ManageCertificates from './pages/admin/ManageCertificates';
 import ManageCTF from './pages/admin/ManageCTF';
 import ManageBugBounty from './pages/admin/ManageBugBounty';
 import ContactMessages from './pages/admin/ContactMessages';
@@ -61,6 +64,12 @@ function AnimatedRoutes() {
         <Route path="/blog/:id" element={<Layout>
               <BlogPost />
             </Layout>} />
+        <Route path="/certificate" element={<Layout>
+              <Certificates />
+            </Layout>} />
+        <Route path="/certificate/:id" element={<Layout>
+              <CertificateDetail />
+            </Layout>} />
         <Route path="/contact" element={<Layout>
               <Contact />
             </Layout>} />
@@ -74,6 +83,7 @@ function AnimatedRoutes() {
           <Route path="blog/new" element={<BlogEditor />} />
           <Route path="blog/edit/:id" element={<BlogEditor />} />
           <Route path="skills" element={<ManageSkills />} />
+          <Route path="certificate" element={<ManageCertificates />} />
           <Route path="ctf" element={<ManageCTF />} />
           <Route path="bug-bounty" element={<ManageBugBounty />} />
           <Route path="messages" element={<ContactMessages />} />

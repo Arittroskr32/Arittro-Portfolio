@@ -1,6 +1,5 @@
-import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Folder, FileText, Shield, Bug, Code, User, Mail, Settings as SettingsIcon, LogOut } from 'lucide-react';
+import { LayoutDashboard, Folder, FileText, Shield, Bug, Code, User, Mail, Settings as SettingsIcon, LogOut, Award } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const adminNavItems = [
@@ -8,6 +7,7 @@ const adminNavItems = [
   { name: 'Projects', path: '/admin/projects', icon: Folder },
   { name: 'Blog Posts', path: '/admin/blog', icon: FileText },
   { name: 'Skills', path: '/admin/skills', icon: Code },
+  { name: 'Certificates', path: '/admin/certificate', icon: Award },
   { name: 'CTF Entries', path: '/admin/ctf', icon: Shield },
   { name: 'Bug Bounty', path: '/admin/bug-bounty', icon: Bug },
   { name: 'Messages', path: '/admin/messages', icon: Mail },

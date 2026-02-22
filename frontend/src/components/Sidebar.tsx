@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, User, Code, Shield, Terminal, FileText, Mail, Github, Linkedin, Twitter, Lock } from 'lucide-react';
+import { Home, User, Code, Shield, Terminal, FileText, Mail, Github, Linkedin, Twitter, Lock, Award } from 'lucide-react';
 const navItems = [{
   name: 'Home',
   path: '/',
@@ -18,6 +18,10 @@ const navItems = [{
   name: 'Projects',
   path: '/projects',
   icon: Terminal
+}, {
+  name: 'Certificates',
+  path: '/certificate',
+  icon: Award
 }, {
   name: 'CTF & Bounty',
   path: '/ctf-bug-bounty',

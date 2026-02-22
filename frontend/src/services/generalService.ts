@@ -18,6 +18,7 @@ export interface DashboardStats {
   ctfEntries: number;
   bugBountyEntries: number;
   skills: number;
+  certificates: number;
   unreadMessages: number;
 }
 
