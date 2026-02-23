@@ -24,7 +24,7 @@ const highlightsConfig = [{
   bg: 'bg-electric-500/10'
 }, {
   key: 'writeups' as keyof Stats,
-  label: 'Writeups',
+  label: 'Blogs',
   icon: PenTool,
   color: 'text-purple-500',
   bg: 'bg-purple-500/10'

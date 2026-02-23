@@ -4,19 +4,30 @@ import { Button } from '../components/ui/Button';
 import { QuickHighlights } from '../components/home/QuickHighlights';
 import { TechStack } from '../components/home/TechStack';
 import { Card } from '../components/ui/Card';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Award, Calendar, Building2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { generalService, ProfileContent } from '../services/generalService';
 import { projectService } from '../services/projectService';
 import { blogService, BlogPost } from '../services/blogService';
+import { certificateService } from '../services/certificateService';
 import { ProjectCard } from '../components/projects/ProjectCard';
-import { Project } from '../types';
+import { Certificate, Project } from '../types';
+
+const VITE_API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8888/api';
+const BACKEND_URL = String(VITE_API_URL).replace(/\/api\/?$/i, '');
+
+const makeFullUrl = (p?: string | null) => {
+  if (!p) return undefined;
+  if (p.startsWith('http://') || p.startsWith('https://')) return p;
+  return `${BACKEND_URL}${p.startsWith('/') ? p : `/${p}`}`;
+};
 
 export function Home() {
   const [heroContent, setHeroContent] = useState<ProfileContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [featuredProjects, setFeaturedProjects] = useState<Project[]>([]);
   const [latestPosts, setLatestPosts] = useState<BlogPost[]>([]);
+  const [featuredCertificates, setFeaturedCertificates] = useState<Certificate[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,6 +43,15 @@ export function Home() {
         // Fetch latest blog posts
         const blogs = await blogService.getAll();
         setLatestPosts(blogs.slice(0, 3));
+
+        // Fetch top certificates by rank
+        const certificates = await certificateService.getAll();
+        const sortedCertificates = [...certificates].sort((a, b) => {
+          const rankA = Number.isFinite(a.rank) ? a.rank : Number.MAX_SAFE_INTEGER;
+          const rankB = Number.isFinite(b.rank) ? b.rank : Number.MAX_SAFE_INTEGER;
+          return rankA - rankB;
+        });
+        setFeaturedCertificates(sortedCertificates.slice(0, 3));
       } catch (error) {
         console.error('Failed to fetch data:', error);
         // Use fallback content if API fails
@@ -124,6 +144,70 @@ export function Home() {
             </motion.div>
           ))}
         </div>
+      </section>
+
+      {/* Featured Certificates */}
+      <section>
+        <div className="flex justify-between items-end mb-8">
+          <h3 className="text-2xl font-bold text-warm-50">Featured Certificates</h3>
+          <Link to="/certificate" className="text-electric-500 hover:text-electric-400 text-sm flex items-center">
+            View all <ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
+        </div>
+        {featuredCertificates.length === 0 ? (
+          <div className="text-center py-10 text-slate-500">
+            No certificates to show yet.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredCertificates.map((cert, index) => (
+              <motion.div
+                key={cert.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Link to={`/certificate/${cert.id}`}>
+                  <Card hover className="group h-full flex flex-col overflow-hidden">
+                    {cert.image_url && (
+                      <div className="relative w-full h-40 bg-navy-900 rounded-lg overflow-hidden mb-4">
+                        <img
+                          src={makeFullUrl(cert.image_url)}
+                          alt={cert.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-transparent to-transparent opacity-60"></div>
+                      </div>
+                    )}
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex items-start justify-between mb-3">
+                        <Award className="h-6 w-6 text-electric-500 flex-shrink-0" />
+                        <span className="text-xs font-mono text-slate-500">Rank #{cert.rank}</span>
+                      </div>
+                      <h4 className="text-lg font-bold text-warm-50 mb-2 group-hover:text-electric-500 transition-colors line-clamp-2">
+                        {cert.title}
+                      </h4>
+                      <div className="flex items-center gap-2 text-sm text-slate-400 mb-3">
+                        <Building2 className="h-4 w-4" />
+                        <span className="line-clamp-1">{cert.issuing_organization}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <Calendar className="h-4 w-4" />
+                        <span>
+                          {new Date(cert.issue_date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            year: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Tech Stack */}
