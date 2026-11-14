@@ -4,11 +4,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import { Lock } from 'lucide-react';
+import { Lock, ExternalLink } from 'lucide-react';
+import { GITHUB_REPO } from '../../services/config';
 
 export function AdminLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [token, setToken] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -20,14 +20,17 @@ export function AdminLogin() {
     setLoading(true);
 
     try {
-      await login({ email, password });
+      await login({ token });
       navigate('/admin/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Invalid credentials');
+      setError(err.message || 'Could not sign in');
     } finally {
       setLoading(false);
     }
   };
+
+  const createTokenUrl =
+    'https://github.com/settings/personal-access-tokens/new?name=Portfolio%20admin&description=Edit%20portfolio%20content&contents=write&actions=read';
 
   return (
     <div className="min-h-screen bg-navy-900 flex items-center justify-center p-4">
@@ -38,25 +41,20 @@ export function AdminLogin() {
           </div>
           <h1 className="text-2xl font-bold text-warm-50">Admin Access</h1>
           <p className="text-slate-400 text-sm mt-2">
-            Enter your credentials to continue
+            Sign in with a GitHub token that can write to <span className="text-slate-300">{GITHUB_REPO}</span>.
+            Your changes are saved as commits and go live after the site redeploys (about a minute).
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <Input 
-            label="Email" 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            required 
-            disabled={loading}
-          />
-          <Input 
-            label="Password" 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
+          <Input
+            label="GitHub personal access token"
+            type="password"
+            autoComplete="off"
+            placeholder="github_pat_..."
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            required
             disabled={loading}
           />
 
@@ -67,9 +65,21 @@ export function AdminLogin() {
           )}
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Checking token...' : 'Sign In'}
           </Button>
         </form>
+
+        <div className="mt-6 text-xs text-slate-400 space-y-2">
+          <p>
+            Need a token?{' '}
+            <a href={createTokenUrl} target="_blank" rel="noopener noreferrer" className="text-electric-500 hover:underline inline-flex items-center gap-1">
+              Create a fine-grained token <ExternalLink className="h-3 w-3" />
+            </a>
+            . Choose <b>Only select repositories</b> → {GITHUB_REPO.split('/')[1]}, and set <b>Contents</b> to Read and write
+            (and optionally <b>Actions</b> to Read-only to see deploy status).
+          </p>
+          <p>The token is stored only in this browser. Sign out on shared computers.</p>
+        </div>
       </Card>
     </div>
   );

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Folder, FileText, Shield, Bug, Code, User, Mail, Settings as SettingsIcon, LogOut, Award } from 'lucide-react';
+import { LayoutDashboard, Folder, FileText, Shield, Bug, Code, User, Mail, Settings as SettingsIcon, LogOut, Award, ShieldAlert, ExternalLink } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const adminNavItems = [
@@ -9,6 +9,7 @@ const adminNavItems = [
   { name: 'Skills', path: '/admin/skills', icon: Code },
   { name: 'Certificates', path: '/admin/certificate', icon: Award },
   { name: 'CTF Entries', path: '/admin/ctf', icon: Shield },
+  { name: 'CVEs', path: '/admin/cves', icon: ShieldAlert },
   { name: 'Bug Bounty', path: '/admin/bug-bounty', icon: Bug },
   { name: 'Messages', path: '/admin/messages', icon: Mail },
   { name: 'Profile', path: '/admin/profile', icon: User },
@@ -44,7 +45,11 @@ export function AdminSidebar() {
           </NavLink>)}
       </nav>
 
-      <div className="p-4 border-t border-navy-800">
+      <div className="p-4 border-t border-navy-800 space-y-1">
+        <a href={import.meta.env.BASE_URL} target="_blank" rel="noopener noreferrer" className="flex w-full items-center px-3 py-2.5 text-sm font-medium text-slate-400 hover:bg-navy-800 hover:text-warm-50 rounded-lg transition-colors">
+          <ExternalLink className="mr-3 h-4 w-4" />
+          View Site
+        </a>
         <button onClick={handleLogout} className="flex w-full items-center px-3 py-2.5 text-sm font-medium text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
           <LogOut className="mr-3 h-4 w-4" />
           Sign Out

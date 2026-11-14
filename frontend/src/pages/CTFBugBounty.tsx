@@ -3,8 +3,9 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ctfService } from '../services/ctfService';
 import { bugBountyService } from '../services/bugBountyService';
-import { CTFEntry, BugBountyEntry } from '../types';
-import { Flag, Bug, Trophy, Target, ExternalLink, Calendar, Award, Users, Shield } from 'lucide-react';
+import { cveService } from '../services/cveService';
+import { CTFEntry, BugBountyEntry, CVEEntry } from '../types';
+import { Flag, Bug, Trophy, Target, ExternalLink, Calendar, Award, Users, ShieldAlert } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 
@@ -12,6 +13,7 @@ export function CTFBugBounty() {
   const [activeTab, setActiveTab] = useState<'ctf' | 'bounty'>('ctf');
   const [ctfEntries, setCtfEntries] = useState<CTFEntry[]>([]);
   const [bugBountyEntries, setBugBountyEntries] = useState<BugBountyEntry[]>([]);
+  const [cves, setCves] = useState<CVEEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -38,8 +40,12 @@ export function CTFBugBounty() {
   const fetchBugBountyEntries = async () => {
     try {
       setLoading(true);
-      const data = await bugBountyService.getAll();
+      const [data, cveData] = await Promise.all([
+        bugBountyService.getAll(),
+        cveService.getAll().catch(() => [] as CVEEntry[]),
+      ]);
       setBugBountyEntries(data);
+      setCves(cveData);
     } catch (error) {
       console.error('Failed to fetch bug bounty entries:', error);
     } finally {
@@ -208,6 +214,97 @@ export function CTFBugBounty() {
               </div>
             ) : (
               <>
+                {cves.length > 0 && (
+                  <section className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <ShieldAlert className="w-6 h-6 text-red-400" />
+                      <h2 className="text-2xl font-bold text-white">CVEs</h2>
+                      <Badge variant="accent">{cves.length}</Badge>
+                    </div>
+                    <p className="text-slate-400 text-sm">
+                      Vulnerabilities I found and responsibly disclosed that were assigned CVE IDs.
+                    </p>
+                    <div className="grid gap-6">
+                      {cves.map((cve) => {
+                        const recordUrl = cve.cve_url || `https://www.cve.org/CVERecord?id=${cve.cve_id}`;
+                        return (
+                          <Card key={cve.id} className="p-6 group">
+                            <div className="flex flex-col sm:flex-row gap-6">
+                              {cve.image_url && (
+                                <a
+                                  href={recordUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="sm:w-56 flex-shrink-0 rounded-lg overflow-hidden bg-navy-800 block"
+                                >
+                                  <img
+                                    src={cve.image_url}
+                                    alt={cve.cve_id}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                  />
+                                </a>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-3 mb-2">
+                                  <a
+                                    href={recordUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xl font-bold text-white hover:text-cyan-400 transition-colors font-mono"
+                                  >
+                                    {cve.cve_id}
+                                  </a>
+                                  <span className={`${getSeverityColor(cve.severity)} text-white text-xs px-2 py-1 rounded`}>
+                                    {cve.cvss_score != null ? `${Number(cve.cvss_score).toFixed(1)} ` : ''}
+                                    {cve.severity}
+                                  </span>
+                                </div>
+                                <p className="text-gray-300 font-medium mb-3">{cve.title}</p>
+                                {cve.description && <p className="text-gray-400 mb-3 line-clamp-3">{cve.description}</p>}
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                  {cve.cvss_version && <Badge variant="outline">CVSS {cve.cvss_version}</Badge>}
+                                  {cve.cwe && <Badge variant="outline">{cve.cwe}{cve.vulnerability_type ? ` · ${cve.vulnerability_type}` : ''}</Badge>}
+                                  {cve.cna && <Badge variant="outline">CNA: {cve.cna}</Badge>}
+                                </div>
+                                <div className="flex flex-wrap items-center gap-6 text-sm">
+                                  <div className="flex items-center gap-2 text-gray-400">
+                                    <Calendar className="w-4 h-4" />
+                                    Published {new Date(cve.published_date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
+                                  </div>
+                                  {cve.advisory_url && (
+                                    <a
+                                      href={cve.advisory_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300"
+                                    >
+                                      Advisory <ExternalLink className="w-4 h-4" />
+                                    </a>
+                                  )}
+                                  <a
+                                    href={recordUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300"
+                                  >
+                                    CVE record <ExternalLink className="w-4 h-4" />
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </section>
+                )}
+
+                {bugBountyEntries.length > 0 && cves.length > 0 && (
+                  <div className="flex items-center gap-3 pt-4">
+                    <Bug className="w-6 h-6 text-cyan-400" />
+                    <h2 className="text-2xl font-bold text-white">Bug Bounty Reports</h2>
+                  </div>
+                )}
                 <div className="grid gap-6">
                   {bugBountyEntries.map((entry) => (
                     <Card
@@ -258,7 +355,7 @@ export function CTFBugBounty() {
                   ))}
                 </div>
 
-                {bugBountyEntries.length === 0 && (
+                {bugBountyEntries.length === 0 && cves.length === 0 && (
                   <div className="text-center py-12">
                     <Bug className="w-16 h-16 text-gray-600 mx-auto mb-4" />
                     <p className="text-gray-400">No bug bounty entries found</p>

@@ -11,41 +11,11 @@ export const certificateService = {
   },
 
   async create(data: FormData): Promise<{ id: number; message: string }> {
-    const token = localStorage.getItem('auth_token');
-    const response = await fetch(`${(import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api'}/certificates`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: data,
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw { response: { data: result } };
-    }
-
-    return result;
+    return apiClient.postFormData('/certificates', data);
   },
 
   async update(id: number, data: FormData): Promise<{ message: string }> {
-    const token = localStorage.getItem('auth_token');
-    const response = await fetch(`${(import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api'}/certificates/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: data,
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw { response: { data: result } };
-    }
-
-    return result;
+    return apiClient.putFormData(`/certificates/${id}`, data);
   },
 
   async delete(id: number): Promise<{ message: string }> {

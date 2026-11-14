@@ -78,3 +78,22 @@ export interface Stat {
   value: string | number;
   icon?: any;
 }
+
+export interface CVEEntry {
+  id: number;
+  cve_id: string;
+  title: string;
+  product?: string;
+  vulnerability_type?: string;
+  cwe?: string;
+  cvss_version?: string;
+  cvss_score?: number | null;
+  severity: string;
+  cna?: string;
+  published_date: string;
+  advisory_url?: string;
+  cve_url?: string;
+  description?: string;
+  image_url?: string | null;
+  created_at?: string;
+}

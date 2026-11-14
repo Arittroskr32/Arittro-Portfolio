@@ -1,8 +1,9 @@
-import { apiClient } from './api';
+import { verifyToken, setToken, getToken } from './github';
+import { resetDataCache } from './staticBackend';
 
 export interface LoginCredentials {
-  email: string;
-  password: string;
+  /** GitHub fine-grained personal access token. */
+  token: string;
 }
 
 export interface AuthResponse {
@@ -11,37 +12,37 @@ export interface AuthResponse {
     id: number;
     email: string;
     name: string;
+    login?: string;
+    avatar_url?: string;
   };
-}
-
-export interface ChangePasswordData {
-  currentPassword: string;
-  newPassword: string;
 }
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
-    localStorage.setItem('auth_token', response.token);
-    localStorage.setItem('admin', JSON.stringify(response.admin));
-    return response;
+    const token = credentials.token.trim();
+    if (!token) throw new Error('Paste your GitHub token.');
+    const identity = await verifyToken(token);
+    const admin = {
+      id: 1,
+      email: '',
+      name: identity.name || identity.login,
+      login: identity.login,
+      avatar_url: identity.avatar_url,
+    };
+    setToken(token);
+    localStorage.setItem('admin', JSON.stringify(admin));
+    resetDataCache();
+    return { token, admin };
   },
 
   async logout(): Promise<void> {
-    localStorage.removeItem('auth_token');
+    setToken(null);
     localStorage.removeItem('admin');
-  },
-
-  async changePassword(data: ChangePasswordData): Promise<{ message: string }> {
-    return apiClient.post('/auth/change-password', data);
-  },
-
-  async getProfile(): Promise<any> {
-    return apiClient.get('/auth/profile');
+    resetDataCache();
   },
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('auth_token');
+    return !!getToken();
   },
 
   getAdmin(): any {

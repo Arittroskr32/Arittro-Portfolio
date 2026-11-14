@@ -11,41 +11,11 @@ export const ctfService = {
   },
 
   async create(data: FormData): Promise<{ id: number; message: string }> {
-    const token = localStorage.getItem('auth_token');
-    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/ctf`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: data,
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw { response: { data: result } };
-    }
-
-    return result;
+    return apiClient.postFormData('/ctf', data);
   },
 
   async update(id: number, data: FormData): Promise<{ message: string }> {
-    const token = localStorage.getItem('auth_token');
-    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/ctf/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: data,
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw { response: { data: result } };
-    }
-
-    return result;
+    return apiClient.putFormData(`/ctf/${id}`, data);
   },
 
   async delete(id: number): Promise<{ message: string }> {
