@@ -1,0 +1,82 @@
+[
+  {
+    "id": 5,
+    "year": "2024",
+    "title": "BUET CTF 2024",
+    "description": "First-ever CTF experience; learned the basics the hard way.",
+    "display_order": 1,
+    "is_featured": 1,
+    "created_at": "2025-12-18T16:48:38.000Z",
+    "updated_at": "2025-12-18T16:48:38.000Z"
+  },
+  {
+    "id": 6,
+    "year": "2025",
+    "title": "Phoenix Summit CTF 2025",
+    "description": "Placed 15th among 224 teams; earned Phoenix Summit 2025 access.",
+    "display_order": 2,
+    "is_featured": 0,
+    "created_at": "2025-12-18T16:49:12.000Z",
+    "updated_at": "2025-12-18T16:49:12.000Z"
+  },
+  {
+    "id": 8,
+    "year": "2025",
+    "title": "BrunnerCTF 2025 (International)",
+    "description": "Ranked 32nd worldwide out of 1,158 teams; top team from Bangladesh.",
+    "display_order": 3,
+    "is_featured": 0,
+    "created_at": "2025-12-18T16:50:16.000Z",
+    "updated_at": "2025-12-18T16:50:16.000Z"
+  },
+  {
+    "id": 9,
+    "year": "2025",
+    "title": "H4ckc0n 2025 CTF (International)",
+    "description": "First time Finished 10th globally in a CTF.",
+    "display_order": null,
+    "is_featured": 0,
+    "created_at": "2025-12-18T16:51:20.000Z",
+    "updated_at": "2025-12-18T16:54:01.000Z"
+  },
+  {
+    "id": 10,
+    "year": "2025",
+    "title": "07CTF (Global, 6 th)",
+    "description": "Placed 6th worldwide; secured First Blood and solved elite challenges.",
+    "display_order": 5,
+    "is_featured": 1,
+    "created_at": "2025-12-18T16:51:48.000Z",
+    "updated_at": "2025-12-18T16:51:48.000Z"
+  },
+  {
+    "id": 11,
+    "year": "2025",
+    "title": "BUP CTF 2025",
+    "description": "Finished 4th; narrowly missed podium, gained competitive edge.",
+    "display_order": 6,
+    "is_featured": 0,
+    "created_at": "2025-12-18T16:52:05.000Z",
+    "updated_at": "2025-12-18T16:52:05.000Z"
+  },
+  {
+    "id": 12,
+    "year": "2025",
+    "title": "DIU CyberCon CTF 2025 (National Finals)",
+    "description": "Secured 3rd place nationally; podium finish among 120+ teams.",
+    "display_order": 7,
+    "is_featured": 1,
+    "created_at": "2025-12-18T16:52:20.000Z",
+    "updated_at": "2025-12-18T16:52:20.000Z"
+  },
+  {
+    "id": 13,
+    "year": "2025",
+    "title": "Intra RUET CTF Organized – RUET Cyber Fest ’25",
+    "description": "Authored web challenges and co-organized the event as OSAM Matrix.",
+    "display_order": 8,
+    "is_featured": 1,
+    "created_at": "2025-12-18T16:52:48.000Z",
+    "updated_at": "2025-12-18T16:52:48.000Z"
+  }
+]

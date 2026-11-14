@@ -1,12 +1,31 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '../../components/ui/Card';
-import { Folder, FileText, Shield, Bug, Mail, Code, Award } from 'lucide-react';
+import { Folder, FileText, Shield, Bug, Code, Award, ShieldAlert } from 'lucide-react';
+import { getLatestDeploy, DeployStatus } from '../../services/github';
+import { lastCommitAt } from '../../services/staticBackend';
+import { GITHUB_BRANCH, GITHUB_REPO } from '../../services/config';
 import { generalService, DashboardStats } from '../../services/generalService';
 
 export function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deploy, setDeploy] = useState<DeployStatus | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      const d = await getLatestDeploy();
+      setDeploy(d);
+      if (d.status === 'queued' || d.status === 'in_progress') timer = setTimeout(poll, 10000);
+    };
+    poll();
+    const onCommit = () => { clearTimeout(timer); setTimeout(poll, 5000); };
+    window.addEventListener('admin:committed', onCommit);
+    return () => { clearTimeout(timer); window.removeEventListener('admin:committed', onCommit); };
+  }, []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -77,9 +96,9 @@ export function Dashboard() {
       color: 'text-yellow-500'
     },
     {
-      label: 'Unread Messages',
-      value: stats?.unreadMessages || 0,
-      icon: Mail,
+      label: 'CVEs',
+      value: (stats as any)?.cves || 0,
+      icon: ShieldAlert,
       color: 'text-red-500'
     }
   ];
@@ -115,7 +134,7 @@ export function Dashboard() {
           </h2>
           <div className="grid grid-cols-2 gap-4">
             <button 
-              onClick={() => window.location.href = '/admin/blog'}
+              onClick={() => navigate('/admin/blog')}
               className="p-4 rounded-lg bg-navy-800 hover:bg-navy-700 transition-colors text-left border border-navy-700"
             >
               <span className="block font-bold text-warm-50 mb-1">
@@ -126,7 +145,7 @@ export function Dashboard() {
               </span>
             </button>
             <button 
-              onClick={() => window.location.href = '/admin/projects'}
+              onClick={() => navigate('/admin/projects')}
               className="p-4 rounded-lg bg-navy-800 hover:bg-navy-700 transition-colors text-left border border-navy-700"
             >
               <span className="block font-bold text-warm-50 mb-1">
@@ -137,7 +156,7 @@ export function Dashboard() {
               </span>
             </button>
             <button 
-              onClick={() => window.location.href = '/admin/certificate'}
+              onClick={() => navigate('/admin/certificate')}
               className="p-4 rounded-lg bg-navy-800 hover:bg-navy-700 transition-colors text-left border border-navy-700"
             >
               <span className="block font-bold text-warm-50 mb-1">
@@ -148,7 +167,7 @@ export function Dashboard() {
               </span>
             </button>
             <button 
-              onClick={() => window.location.href = '/admin/ctf'}
+              onClick={() => navigate('/admin/ctf')}
               className="p-4 rounded-lg bg-navy-800 hover:bg-navy-700 transition-colors text-left border border-navy-700"
             >
               <span className="block font-bold text-warm-50 mb-1">
@@ -163,27 +182,39 @@ export function Dashboard() {
 
         <Card className="p-6">
           <h2 className="text-xl font-bold text-warm-50 mb-4">
-            System Status
+            Publishing
           </h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between py-2 border-b border-navy-800">
-              <span className="text-sm text-slate-300">Database</span>
-              <span className="flex items-center gap-2 text-green-500 text-sm">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                Connected
-              </span>
+              <span className="text-sm text-slate-300">Content saved to</span>
+              <a className="text-sm text-electric-500 hover:underline" href={`https://github.com/${GITHUB_REPO}/tree/${GITHUB_BRANCH}/frontend/public/data`} target="_blank" rel="noopener noreferrer">
+                {GITHUB_REPO}
+              </a>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-navy-800">
-              <span className="text-sm text-slate-300">API Server</span>
-              <span className="flex items-center gap-2 text-green-500 text-sm">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                Online
-              </span>
+              <span className="text-sm text-slate-300">Latest deploy</span>
+              {(() => {
+                if (!deploy || deploy.status === 'unknown') return <span className="text-slate-400 text-sm">Unknown</span>;
+                const running = deploy.status !== 'completed';
+                const ok = deploy.conclusion === 'success';
+                const color = running ? 'text-yellow-500' : ok ? 'text-green-500' : 'text-red-500';
+                const dot = running ? 'bg-yellow-500 animate-pulse' : ok ? 'bg-green-500' : 'bg-red-500';
+                const text = running ? 'Deploying…' : ok ? 'Live' : `Failed (${deploy.conclusion})`;
+                return (
+                  <a href={deploy.html_url || '#'} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 text-sm ${color}`}>
+                    <div className={`w-2 h-2 rounded-full ${dot}`} />
+                    {text}
+                  </a>
+                );
+              })()}
             </div>
             <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-slate-300">Last Backup</span>
-              <span className="text-slate-400 text-sm">Never</span>
+              <span className="text-sm text-slate-300">Last change from admin</span>
+              <span className="text-slate-400 text-sm">{lastCommitAt() ? new Date(lastCommitAt()!).toLocaleString() : 'None yet'}</span>
             </div>
+            <p className="text-xs text-slate-500">
+              Each save is a commit. Visitors see it after the deploy finishes, usually within one or two minutes.
+            </p>
           </div>
         </Card>
       </div>

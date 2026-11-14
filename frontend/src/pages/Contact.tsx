@@ -10,6 +10,7 @@ import { contactService } from '../services/contactService';
 export function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSent, setIsSent] = useState(false);
+  const [viaEmailApp, setViaEmailApp] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,7 +22,8 @@ export function Contact() {
     setIsSubmitting(true);
     
     try {
-      await contactService.submit(formData);
+      const result = await contactService.submit(formData);
+      setViaEmailApp(result.mode === 'mailto');
       setIsSent(true);
       setFormData({ name: '', email: '', message: '' });
     } catch (error) {
@@ -115,11 +117,12 @@ export function Contact() {
                   <Send className="h-8 w-8 text-green-500" />
                 </div>
                 <h3 className="text-2xl font-bold text-warm-50 mb-2">
-                  Message Sent!
+                  {viaEmailApp ? 'Almost there!' : 'Message Sent!'}
                 </h3>
                 <p className="text-slate-400">
-                  Thanks for reaching out. I'll get back to you as soon as
-                  possible.
+                  {viaEmailApp
+                    ? 'Your email app has opened with the message filled in. Press send there and I will get back to you as soon as possible.'
+                    : "Thanks for reaching out. I'll get back to you as soon as possible."}
                 </p>
                 <Button variant="outline" className="mt-6" onClick={() => setIsSent(false)}>
                   Send Another

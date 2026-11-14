@@ -1,95 +1,52 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// API client used by every service.
+//
+// There is no backend server any more: requests are answered by
+// staticBackend.ts, which reads the site's JSON content files and (for the
+// signed-in admin) commits changes to GitHub. The method names are unchanged so
+// the pages and services did not need to change.
+
+import { handleRequest } from './staticBackend';
 
 class ApiClient {
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem('auth_token');
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
-  }
-
-  private async handleResponse<T>(response: Response): Promise<T> {
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'An error occurred' }));
-      throw new Error(error.error || error.message || 'An error occurred');
+  private async call<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', endpoint: string, data?: any): Promise<T> {
+    try {
+      return (await handleRequest(method, endpoint, data)) as T;
+    } catch (err: any) {
+      // Keep the old error shape so existing `error.response?.data?.message` checks still work.
+      const message = err?.message || 'An error occurred';
+      const e: any = new Error(message);
+      e.status = err?.status;
+      e.response = { data: { error: message, message } };
+      throw e;
     }
-    return response.json();
   }
 
-  async get<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    });
-    return this.handleResponse<T>(response);
+  get<T>(endpoint: string): Promise<T> {
+    return this.call<T>('GET', endpoint);
   }
 
-  async post<T>(endpoint: string, data: any): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
-    });
-    return this.handleResponse<T>(response);
+  post<T>(endpoint: string, data: any): Promise<T> {
+    return this.call<T>('POST', endpoint, data);
   }
 
-  async put<T>(endpoint: string, data: any): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'PUT',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(data),
-    });
-    return this.handleResponse<T>(response);
+  put<T>(endpoint: string, data: any): Promise<T> {
+    return this.call<T>('PUT', endpoint, data);
   }
 
-  async patch<T>(endpoint: string, data?: any): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'PATCH',
-      headers: this.getAuthHeaders(),
-      body: data ? JSON.stringify(data) : undefined,
-    });
-    return this.handleResponse<T>(response);
+  patch<T>(endpoint: string, data?: any): Promise<T> {
+    return this.call<T>('PATCH', endpoint, data);
   }
 
-  async delete<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'DELETE',
-      headers: this.getAuthHeaders(),
-    });
-    return this.handleResponse<T>(response);
+  delete<T>(endpoint: string): Promise<T> {
+    return this.call<T>('DELETE', endpoint);
   }
 
-  async postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
-    const token = localStorage.getItem('auth_token');
-    const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    // Don't set Content-Type header - browser will set it with boundary for FormData
-
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
-    return this.handleResponse<T>(response);
+  postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
+    return this.call<T>('POST', endpoint, formData);
   }
 
-  async putFormData<T>(endpoint: string, formData: FormData): Promise<T> {
-    const token = localStorage.getItem('auth_token');
-    const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    // Don't set Content-Type header - browser will set it with boundary for FormData
-
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'PUT',
-      headers,
-      body: formData,
-    });
-    return this.handleResponse<T>(response);
+  putFormData<T>(endpoint: string, formData: FormData): Promise<T> {
+    return this.call<T>('PUT', endpoint, formData);
   }
 }
 

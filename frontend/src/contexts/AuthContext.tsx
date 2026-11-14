@@ -5,6 +5,8 @@ interface Admin {
   id: number;
   email: string;
   name: string;
+  login?: string;
+  avatar_url?: string;
 }
 
 interface AuthContextType {
@@ -27,7 +29,7 @@ export function AuthProvider({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('gh_admin_token');
     const storedAdmin = localStorage.getItem('admin');
     
     if (token && storedAdmin) {
