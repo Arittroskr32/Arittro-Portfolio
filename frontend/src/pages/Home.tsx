@@ -56,7 +56,7 @@ export function Home() {
         console.error('Failed to fetch data:', error);
         // Use fallback content if API fails
         setHeroContent({
-          hero_title: 'Arittro Sarkar (Devil@32)',
+          hero_title: 'Arittro Sarkar',
           hero_subtitle: 'Cybersecurity Enthusiast & Full-Stack Developer',
           hero_tagline: '',
           hero_description: "I specialize in web exploitation, vulnerability research, and creating defensive tools to bridge the gap between offensive security and secure development.",
