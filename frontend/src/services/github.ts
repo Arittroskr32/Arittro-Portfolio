@@ -55,6 +55,11 @@ async function gh<T>(path: string, init: RequestInit = {}, token = getToken()): 
     } catch {
       /* ignore */
     }
+    if (res.status === 403 && init.method && init.method !== 'GET') {
+      msg = 'GitHub refused the save: your token cannot write to the repository. Edit the token on GitHub and set "Contents" to "Read and write", then sign out and sign in again.';
+    } else if (res.status === 401) {
+      msg = 'Your GitHub token is invalid or expired. Sign out and sign in with a new token.';
+    }
     throw new GitHubError(msg, res.status);
   }
   if (res.status === 204) return undefined as T;
@@ -78,6 +83,18 @@ export async function verifyToken(token: string): Promise<GitHubIdentity> {
   if (repo?.permissions && repo.permissions.push === false) {
     throw new Error('The token can read the repository but cannot write to it. Give it "Contents: Read and write".');
   }
+  // For fine-grained tokens, `permissions` above describes the *account*, not
+  // the token, so check write access directly by creating a tiny blob. An
+  // unreferenced blob changes nothing in the repository.
+  await gh<any>(`/repos/${GITHUB_REPO}/git/blobs`, {
+    method: 'POST',
+    body: JSON.stringify({ content: 'write-check', encoding: 'utf-8' }),
+  }, token).catch((e: GitHubError) => {
+    if (e.status === 403 || e.status === 404) {
+      throw new Error('This token can only read the repository. Edit the token on GitHub and set Repository permissions → "Contents" to "Read and write", then sign in again.');
+    }
+    throw e;
+  });
   const user = await gh<any>('/user', {}, token).catch(() => null);
   return {
     login: user?.login || repo?.owner?.login || 'admin',
