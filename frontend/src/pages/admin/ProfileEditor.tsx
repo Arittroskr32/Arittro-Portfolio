@@ -52,7 +52,7 @@ const ProfileEditor: React.FC = () => {
       setHeroTitle(data.hero_title || '');
       setHeroSubtitle(data.hero_subtitle || '');
       setHeroDescription(data.hero_description || '');
-      setAboutContent(data.about_intro || '');
+      setAboutContent((data as any).about || data.about_intro || '');
     } catch (error) {
       console.error('Failed to fetch profile:', error);
     } finally {
@@ -83,9 +83,9 @@ const ProfileEditor: React.FC = () => {
       setSaving(true);
       await generalService.updateProfileContent(section, content);
       alert('Profile updated successfully!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update profile:', error);
-      alert('Failed to update profile. Please try again.');
+      alert(`Failed to update profile. Please try again.\n\n${error?.message || ''}`);
     } finally {
       setSaving(false);
     }
@@ -103,9 +103,9 @@ const ProfileEditor: React.FC = () => {
       ]);
       
       alert('All changes saved successfully!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save changes:', error);
-      alert('Failed to save changes. Please try again.');
+      alert(`Failed to save changes. Please try again.\n\n${error?.message || ''}`);
     } finally {
       setSaving(false);
     }
@@ -157,9 +157,9 @@ const ProfileEditor: React.FC = () => {
       await fetchJourneyHighlights();
       closeJourneyModal();
       alert('Journey highlight saved successfully!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save journey highlight:', error);
-      alert('Failed to save journey highlight. Please try again.');
+      alert(`Failed to save journey highlight. Please try again.\n\n${error?.message || ''}`);
     } finally {
       setSaving(false);
     }
@@ -171,9 +171,9 @@ const ProfileEditor: React.FC = () => {
         await generalService.deleteJourneyHighlight(id);
         await fetchJourneyHighlights();
         alert('Journey highlight deleted successfully!');
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to delete journey highlight:', error);
-        alert('Failed to delete journey highlight. Please try again.');
+        alert(`Failed to delete journey highlight. Please try again.\n\n${error?.message || ''}`);
       }
     }
   };
@@ -183,9 +183,9 @@ const ProfileEditor: React.FC = () => {
       setSaving(true);
       await generalService.updateStats(stats);
       alert('Stats updated successfully!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update stats:', error);
-      alert('Failed to update stats. Please try again.');
+      alert(`Failed to update stats. Please try again.\n\n${error?.message || ''}`);
     } finally {
       setSaving(false);
     }
