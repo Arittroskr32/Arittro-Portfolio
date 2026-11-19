@@ -97,3 +97,21 @@ export interface CVEEntry {
   image_url?: string | null;
   created_at?: string;
 }
+
+export interface PublicationLink {
+  label: string;
+  url: string;
+}
+
+export interface Publication {
+  id: number;
+  title: string;
+  authors: string;
+  venue: string;
+  track?: string;
+  year: number;
+  type: string;
+  links: PublicationLink[];
+  created_at?: string;
+  updated_at?: string;
+}

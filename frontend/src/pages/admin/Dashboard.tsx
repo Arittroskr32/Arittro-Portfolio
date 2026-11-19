@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../../components/ui/Card';
-import { Folder, FileText, Shield, Bug, Code, Award, ShieldAlert } from 'lucide-react';
+import { Folder, FileText, Shield, Bug, Code, Award, ShieldAlert, BookOpen } from 'lucide-react';
 import { getLatestDeploy, DeployStatus } from '../../services/github';
 import { lastCommitAt } from '../../services/staticBackend';
 import { GITHUB_BRANCH, GITHUB_REPO } from '../../services/config';
@@ -64,6 +64,12 @@ export function Dashboard() {
       value: stats?.projects || 0,
       icon: Folder,
       color: 'text-blue-500'
+    },
+    {
+      label: 'Publications',
+      value: (stats as any)?.publications || 0,
+      icon: BookOpen,
+      color: 'text-teal-500'
     },
     {
       label: 'Blog Posts',

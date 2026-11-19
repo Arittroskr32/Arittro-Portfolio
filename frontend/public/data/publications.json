@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "title": "Reproduction Beyond Benchmarks: ConstBERT and ColBERT-v2 Across Backends and Query Distributions",
+    "authors": "Utshab Kumar Ghosh, Ashish David, Shubham Chatterjee",
+    "venue": "ACM SIGIR 2026 (A*)",
+    "track": "Reproducibility track",
+    "year": 2026,
+    "type": "Conference papers",
+    "links": [
+      { "label": "Paper", "url": "https://arxiv.org/pdf/2604.09982" },
+      { "label": "arXiv", "url": "https://arxiv.org/abs/2604.09982" }
+    ],
+    "created_at": "2026-11-19T00:00:00.000Z",
+    "updated_at": "2026-11-19T00:00:00.000Z"
+  }
+]
