@@ -1,10 +1,11 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Folder, FileText, Shield, Bug, Code, User, Mail, Settings as SettingsIcon, LogOut, Award, ShieldAlert, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, Folder, FileText, Shield, Bug, Code, User, Mail, Settings as SettingsIcon, LogOut, Award, ShieldAlert, ExternalLink, BookOpen } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const adminNavItems = [
   { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
   { name: 'Projects', path: '/admin/projects', icon: Folder },
+  { name: 'Publications', path: '/admin/publications', icon: BookOpen },
   { name: 'Blog Posts', path: '/admin/blog', icon: FileText },
   { name: 'Skills', path: '/admin/skills', icon: Code },
   { name: 'Certificates', path: '/admin/certificate', icon: Award },

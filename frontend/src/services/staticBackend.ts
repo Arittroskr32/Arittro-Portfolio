@@ -19,6 +19,7 @@ type CollectionName =
   | 'ctf_entries'
   | 'bug_bounty_entries'
   | 'cves'
+  | 'publications'
   | 'skills'
   | 'highlights'
   | 'journey_highlights'
@@ -135,6 +136,13 @@ const COLLECTIONS: Record<string, CollectionDef> = {
     hasImage: true,
     uploadPrefix: 'cve',
     sort: chain(byDesc('published_date'), byDesc('cve_id')),
+  },
+  publications: {
+    name: 'publications',
+    label: 'publication',
+    fields: ['title', 'authors', 'venue', 'track', 'year', 'type', 'links'],
+    numeric: ['year'],
+    sort: chain(byAsc('type'), (a, b) => (Number(b.year) || 0) - (Number(a.year) || 0), byDesc('created_at')),
   },
   skills: {
     name: 'skills',
@@ -366,6 +374,18 @@ function coerce(def: CollectionDef, input: Row): Row {
   for (const f of def.fields) {
     if (!(f in input)) continue;
     let v = input[f];
+    if (f === 'links' && typeof v === 'string') {
+      try {
+        v = JSON.parse(v);
+      } catch {
+        v = [];
+      }
+    }
+    if (f === 'links') {
+      v = (Array.isArray(v) ? v : [])
+        .map((l: any) => ({ label: String(l?.label ?? '').trim(), url: String(l?.url ?? '').trim() }))
+        .filter((l: Row) => l.url);
+    }
     if (def.numeric?.includes(f)) v = v === '' || v == null ? null : Number(v);
     else if (def.booleans?.includes(f)) v = v === true || v === 'true' || v === 1 || v === '1' ? 1 : 0;
     out[f] = v;
@@ -376,6 +396,7 @@ function coerce(def: CollectionDef, input: Row): Row {
 function present(def: CollectionDef | null, row: Row): Row {
   const r = { ...row };
   if ('image_url' in r) r.image_url = resolveAsset(r.image_url);
+  if (def?.name === 'publications' && !Array.isArray(r.links)) r.links = [];
   if (def?.name === 'bug_bounty_entries' && r.bounty_amount != null) r.bounty_amount = Number(r.bounty_amount);
   return r;
 }
@@ -448,8 +469,8 @@ export async function handleRequest(method: Method, endpoint: string, body?: any
   }
 
   if (parts[0] === 'dashboard' && parts[1] === 'stats') {
-    const [projects, blogs, ctf, bb, skills, certs, cves] = await Promise.all(
-      (['projects', 'blog_posts', 'ctf_entries', 'bug_bounty_entries', 'skills', 'certificates', 'cves'] as CollectionName[]).map(load)
+    const [projects, blogs, ctf, bb, skills, certs, cves, pubs] = await Promise.all(
+      (['projects', 'blog_posts', 'ctf_entries', 'bug_bounty_entries', 'skills', 'certificates', 'cves', 'publications'] as CollectionName[]).map(load)
     );
     return {
       projects: projects.length,
@@ -459,6 +480,7 @@ export async function handleRequest(method: Method, endpoint: string, body?: any
       skills: skills.length,
       certificates: certs.length,
       cves: cves.length,
+      publications: pubs.length,
       unreadMessages: 0,
     };
   }
@@ -503,7 +525,7 @@ export async function handleRequest(method: Method, endpoint: string, body?: any
       }
       if (def.hasImage) row.image_url = image ? await storeImage(ctx, def, image) : toStoragePath(fields.image_url) || null;
       row.created_at = nowIso();
-      if (['projects', 'blog_posts', 'certificates', 'journey_highlights'].includes(def.name)) row.updated_at = row.created_at;
+      if (['projects', 'blog_posts', 'certificates', 'journey_highlights', 'publications'].includes(def.name)) row.updated_at = row.created_at;
       rows.push(row);
       ctx.save(def.name, rows);
       return { id: row.id, message: `${capitalize(def.label)} created successfully`, image_url: resolveAsset(row.image_url) };

@@ -9,6 +9,7 @@ import { About } from './pages/About';
 import { Skills } from './pages/Skills';
 import { Projects } from './pages/Projects';
 import { ProjectDetail } from './pages/ProjectDetail';
+import { Publications } from './pages/Publications';
 import { CTFBugBounty } from './pages/CTFBugBounty';
 import { CTFDetail } from './pages/CTFDetail';
 import { BugBountyDetail } from './pages/BugBountyDetail';
@@ -28,6 +29,7 @@ import ManageCertificates from './pages/admin/ManageCertificates';
 import ManageCTF from './pages/admin/ManageCTF';
 import ManageBugBounty from './pages/admin/ManageBugBounty';
 import ManageCVEs from './pages/admin/ManageCVEs';
+import ManagePublications from './pages/admin/ManagePublications';
 import ContactMessages from './pages/admin/ContactMessages';
 import ProfileEditor from './pages/admin/ProfileEditor';
 import Settings from './pages/admin/Settings';
@@ -49,6 +51,9 @@ function AnimatedRoutes() {
             </Layout>} />
         <Route path="/projects/:id" element={<Layout>
               <ProjectDetail />
+            </Layout>} />
+        <Route path="/publications" element={<Layout>
+              <Publications />
             </Layout>} />
         <Route path="/ctf-bug-bounty" element={<Layout>
               <CTFBugBounty />
@@ -81,6 +86,7 @@ function AnimatedRoutes() {
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="projects" element={<ManageProjects />} />
+          <Route path="publications" element={<ManagePublications />} />
           <Route path="blog" element={<ManageBlog />} />
           <Route path="blog/new" element={<BlogEditor />} />
           <Route path="blog/edit/:id" element={<BlogEditor />} />
